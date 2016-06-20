@@ -1,43 +1,42 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace AuthenticationServer.Plugins.Infrastructure.Tests.Configuration
 {
     [TestClass]
     public class CompleteFederatedAuthenticationConfigurationTests : ConfigurationTestsBase
     {
+        [TestInitialize]
+        public void Setup()
+        {
+            SetupFederatedAuthenticationConfiguration("ValidConfiguration.config");
+        }
+
         [TestMethod]
         public void UserAccountNameClaimIsRetrieved()
         {
-            SetupFederatedAuthenticationConfiguration("ValidConfiguration.config");
             Assert.AreEqual("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", federatedAuthenticationConfiguration.UserAccountNameClaim);
         }
 
         [TestMethod]
-        public void UserDisplayNameClaimIsRetrieved()
+        public void ReceivedClaimsAreRetrieved()
         {
-            SetupFederatedAuthenticationConfiguration("ValidConfiguration.config");
-            Assert.AreEqual("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", federatedAuthenticationConfiguration.UserDisplayNameClaim);
+            Assert.IsNotNull(federatedAuthenticationConfiguration.ReceivedClaims);
+            Assert.AreEqual(1, federatedAuthenticationConfiguration.ReceivedClaims.Count);
+            Assert.AreEqual("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/received", federatedAuthenticationConfiguration.ReceivedClaims.Single().ReceivedClaimType);
+            Assert.AreEqual("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/target", federatedAuthenticationConfiguration.ReceivedClaims.Single().TargetClaimType);
         }
 
         [TestMethod]
-        public void GroupsClaimIsRetrieved()
+        public void ReceivedClaimsContainsClaim()
         {
-            SetupFederatedAuthenticationConfiguration("ValidConfiguration.config");
-            Assert.AreEqual("http://affecto.com/claims/group", federatedAuthenticationConfiguration.GroupsClaim);
+            Assert.IsTrue(federatedAuthenticationConfiguration.ReceivedClaims.ContainsReceivedClaimType("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/received"));
         }
 
         [TestMethod]
-        public void GroupsClaimIsEmpty()
+        public void TargetClaimTypeIsRetrieved()
         {
-            SetupFederatedAuthenticationConfiguration("EmptyFederatedGroupClaim.config");
-            Assert.AreEqual(string.Empty, federatedAuthenticationConfiguration.GroupsClaim);
-        }
-
-        [TestMethod]
-        public void GroupsClaimIsMissing()
-        {
-            SetupFederatedAuthenticationConfiguration("MissingFederatedGroupClaim.config");
-            Assert.AreEqual(string.Empty, federatedAuthenticationConfiguration.GroupsClaim);
+            Assert.AreEqual("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/target", federatedAuthenticationConfiguration.ReceivedClaims.GetTargetClaimType("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/received"));
         }
     }
 }

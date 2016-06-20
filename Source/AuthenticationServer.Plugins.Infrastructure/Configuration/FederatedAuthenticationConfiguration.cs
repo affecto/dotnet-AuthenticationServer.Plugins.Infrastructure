@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using Affecto.Configuration.Extensions;
 
 namespace Affecto.AuthenticationServer.Plugins.Infrastructure.Configuration
 {
@@ -15,22 +16,28 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure.Configuration
         [ConfigurationProperty("userAccountNameClaim", IsRequired = true)]
         public string UserAccountNameClaim
         {
-            get { return (string)this["userAccountNameClaim"]; }
+            get { return (string) this["userAccountNameClaim"]; }
             set { this["userAccountNameClaim"] = value; }
         }
 
-        [ConfigurationProperty("userDisplayNameClaim", IsRequired = true)]
-        public string UserDisplayNameClaim
+        public IReceivedClaims ReceivedClaims
         {
-            get { return (string)this["userDisplayNameClaim"]; }
-            set { this["userDisplayNameClaim"] = value; }
+            get
+            {
+                if (ReceivedClaimsInternal != null)
+                {
+                    return new ReceivedClaims(ReceivedClaimsInternal);
+                }
+
+                return new ReceivedClaims();
+            }
         }
 
-        [ConfigurationProperty("groupsClaim", IsRequired = false)]
-        public string GroupsClaim
+        [ConfigurationProperty("receivedClaims", IsDefaultCollection = true)]
+        [ConfigurationCollection(typeof(ConfigurationElementCollection<ReceivedClaimConfiguration>), AddItemName = "receivedClaim")]
+        private ConfigurationElementCollection<ReceivedClaimConfiguration> ReceivedClaimsInternal
         {
-            get { return (string)this["groupsClaim"]; }
-            set { this["groupsClaim"] = value; }
+            get { return (ConfigurationElementCollection<ReceivedClaimConfiguration>) base["receivedClaims"]; }
         }
 
         protected override void PostDeserialize()
@@ -38,10 +45,6 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure.Configuration
             if (string.IsNullOrWhiteSpace(UserAccountNameClaim))
             {
                 throw new ConfigurationErrorsException("User account name claim is required.");
-            }
-            if (string.IsNullOrWhiteSpace(UserDisplayNameClaim))
-            {
-                throw new ConfigurationErrorsException("User display name claim is required.");
             }
         }
     }

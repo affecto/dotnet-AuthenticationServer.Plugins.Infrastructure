@@ -15,23 +15,9 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests.Configuration
 
         [TestMethod]
         [ExpectedException(typeof(ConfigurationErrorsException))]
-        public void EmptyUserDisplayNameClaim()
-        {
-            SetupFederatedAuthenticationConfiguration("EmptyFederatedUserDisplayNameClaim.config");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ConfigurationErrorsException))]
         public void MissingUserAccountNameClaim()
         {
             SetupFederatedAuthenticationConfiguration("MissingFederatedUserAccountNameClaim.config");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ConfigurationErrorsException))]
-        public void MissingUserDisplayNameClaim()
-        {
-            SetupFederatedAuthenticationConfiguration("MissingFederatedUserDisplayNameClaim.config");
         }
     }
 }

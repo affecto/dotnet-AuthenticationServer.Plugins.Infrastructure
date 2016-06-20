@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
@@ -49,8 +50,10 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
         /// </summary>
         /// <param name="userName">Received user name.</param>
         /// <param name="authenticationType">Authentication type used.</param>
+        /// <param name="receivedClaims">Possible claims received from e.g. external identity provider. Claim names are mapped according to configuration.</param>
         /// <param name="identityProvider">Identity provider id, "idsrv" as default. Can be replaced with e.g. external identity provider id.</param>
         /// <returns></returns>
-        protected abstract AuthenticateResult CreateAuthenticateResult(string userName, string authenticationType, string identityProvider = "idsrv");
+        protected abstract AuthenticateResult CreateAuthenticateResult(string userName, string authenticationType,
+            IDictionary<string, string> receivedClaims = null, string identityProvider = "idsrv");
     }
 }
