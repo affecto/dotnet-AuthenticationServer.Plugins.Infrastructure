@@ -8,14 +8,14 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests.TestClasses
     {
         public string ReceivedUserName { get; private set; }
         public string ReceivedAuthenticationType { get; private set; }
-        public IDictionary<string, string> ReceivedReceivedClaims { get; private set; }
+        public IEnumerable<KeyValuePair<string, string>> ReceivedReceivedClaims { get; private set; }
         public string ReceivedIdentityProvider { get; private set; }
 
         public AuthenticateResult ResultToReturn { get; set; }
         public bool? PasswordMatchToReturn { get; set; }
 
         protected override AuthenticateResult CreateAuthenticateResult(string userName, string authenticationType,
-            IDictionary<string, string> receivedClaims = null, string identityProvider = "idsrv")
+            IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims = null, string identityProvider = "idsrv")
         {
             ReceivedUserName = userName;
             ReceivedAuthenticationType = authenticationType;

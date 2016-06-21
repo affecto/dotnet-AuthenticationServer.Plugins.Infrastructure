@@ -54,6 +54,6 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
         /// <param name="identityProvider">Identity provider id, "idsrv" as default. Can be replaced with e.g. external identity provider id.</param>
         /// <returns></returns>
         protected abstract AuthenticateResult CreateAuthenticateResult(string userName, string authenticationType,
-            IDictionary<string, string> receivedClaims = null, string identityProvider = "idsrv");
+            IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims = null, string identityProvider = "idsrv");
     }
 }

@@ -8,11 +8,11 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests.TestClasses
 {
     internal class TestFederatedAuthenticationUserService : FederatedAuthenticationUserServiceBase
     {
-        public IDictionary<string, string> ReceivedReceivedClaimsForAuthenticatedUser { get; private set; }
+        public IEnumerable<KeyValuePair<string, string>> ReceivedReceivedClaimsForAuthenticatedUser { get; private set; }
 
         public string ReceivedUserName { get; private set; }
         public string ReceivedAuthenticationType { get; private set; }
-        public IDictionary<string, string> ReceivedReceivedClaimsForAuthenticateResult { get; private set; }
+        public IEnumerable<KeyValuePair<string, string>> ReceivedReceivedClaimsForAuthenticateResult { get; private set; }
         public string ReceivedIdentityProvider { get; private set; }
 
         public AuthenticateResult ResultToReturn { get; set; }
@@ -22,13 +22,13 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests.TestClasses
         {
         }
 
-        protected override void CreateOrUpdateExternallyAuthenticatedUser(IDictionary<string, string> receivedClaims)
+        protected override void CreateOrUpdateExternallyAuthenticatedUser(IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims)
         {
             ReceivedReceivedClaimsForAuthenticatedUser = receivedClaims;
         }
 
         protected override AuthenticateResult CreateAuthenticateResult(string userName, string authenticationType,
-            IDictionary<string, string> receivedClaims = null, string identityProvider = "idsrv")
+            IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims = null, string identityProvider = "idsrv")
         {
             ReceivedUserName = userName;
             ReceivedAuthenticationType = authenticationType;

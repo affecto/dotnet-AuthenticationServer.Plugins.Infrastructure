@@ -31,10 +31,7 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
         public override Task AuthenticateExternalAsync(ExternalAuthenticationContext context)
         {
             Claim userAccountName = context.ExternalIdentity.Claims.SingleOrDefault(c => c.Type == federatedAuthenticationConfiguration.Value.UserAccountNameClaim);
-            IDictionary<string, string> receivedClaims = MapReceivedClaims(context.ExternalIdentity.Claims);
-
-            System.Diagnostics.Debug.Write($"Provider: {context.ExternalIdentity.Provider}");
-            System.Diagnostics.Debug.Write($"ProviderId: {context.ExternalIdentity.ProviderId}");
+            IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims = MapReceivedClaims(context.ExternalIdentity.Claims);
 
             if (userAccountName != null)
             {
@@ -54,13 +51,13 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
         /// Override this method if you need to update externally authenticated user's information to another identity management system.
         /// </summary>
         /// <param name="receivedClaims">Claims received from external identity provider. Claim names are mapped according to configuration.</param>
-        protected virtual void CreateOrUpdateExternallyAuthenticatedUser(IDictionary<string, string> receivedClaims)
+        protected virtual void CreateOrUpdateExternallyAuthenticatedUser(IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims)
         {
         }
 
-        protected virtual IDictionary<string, string> MapReceivedClaims(IEnumerable<Claim> receivedClaims)
+        protected virtual IReadOnlyCollection<KeyValuePair<string, string>> MapReceivedClaims(IEnumerable<Claim> receivedClaims)
         {
-            var mappedClaims = new Dictionary<string, string>();
+            var mappedClaims = new List<KeyValuePair<string, string>>();
             IReceivedClaims configuration = federatedAuthenticationConfiguration.Value.ReceivedClaims;
 
             foreach (Claim claim in receivedClaims)
@@ -68,7 +65,7 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
                 if (configuration.ContainsReceivedClaimType(claim.Type))
                 {
                     string targetClaimType = configuration.GetTargetClaimType(claim.Type);
-                    mappedClaims.Add(targetClaimType, claim.Value);
+                    mappedClaims.Add(new KeyValuePair<string, string>(targetClaimType, claim.Value));
                 }
             }
 

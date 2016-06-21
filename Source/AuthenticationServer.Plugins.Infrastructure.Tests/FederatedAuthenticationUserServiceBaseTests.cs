@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using Affecto.AuthenticationServer.Plugins.Infrastructure.Configuration;
 using AuthenticationServer.Plugins.Infrastructure.Tests.TestClasses;
@@ -30,6 +31,7 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests
                     new Claim("sub", "testsub"),
                     new Claim("userName", "test user"),
                     new Claim("mappedClaim1", "value1"),
+                    new Claim("mappedClaim1", "value12"),
                     new Claim("unmappedClaim", "value3"),
                     new Claim("mappedClaim2", "value2")
                 }),
@@ -62,7 +64,7 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests
             Assert.AreSame("test user", sut.ReceivedUserName);
             Assert.AreSame(AuthenticationTypes.Federation, sut.ReceivedAuthenticationType);
             Assert.IsNotNull(sut.ReceivedReceivedClaimsForAuthenticateResult);
-            Assert.AreEqual(0, sut.ReceivedReceivedClaimsForAuthenticateResult.Count);
+            Assert.AreEqual(0, sut.ReceivedReceivedClaimsForAuthenticateResult.Count());
             Assert.AreEqual("TestIdp", sut.ReceivedIdentityProvider);
         }
 
@@ -72,7 +74,7 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests
             sut.AuthenticateExternalAsync(context);
 
             Assert.IsNotNull(sut.ReceivedReceivedClaimsForAuthenticatedUser);
-            Assert.AreEqual(0, sut.ReceivedReceivedClaimsForAuthenticatedUser.Count);
+            Assert.AreEqual(0, sut.ReceivedReceivedClaimsForAuthenticatedUser.Count());
         }
 
         [TestMethod]
@@ -86,9 +88,18 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests
             sut.AuthenticateExternalAsync(context);
 
             Assert.IsNotNull(sut.ReceivedReceivedClaimsForAuthenticateResult);
-            Assert.AreEqual(2, sut.ReceivedReceivedClaimsForAuthenticateResult.Count);
-            Assert.AreEqual("value1", sut.ReceivedReceivedClaimsForAuthenticateResult["mappedTargetClaim1"]);
-            Assert.AreEqual("value2", sut.ReceivedReceivedClaimsForAuthenticateResult["mappedTargetClaim2"]);
+            Assert.AreEqual(3, sut.ReceivedReceivedClaimsForAuthenticateResult.Count());
+
+            List<KeyValuePair<string, string>> claims = sut.ReceivedReceivedClaimsForAuthenticateResult.Where(c => c.Key == "mappedTargetClaim1").ToList();
+            Assert.AreEqual(2, claims.Count);
+
+            Assert.AreEqual("value1", claims.ElementAt(0).Value);
+            Assert.AreEqual("value12", claims.ElementAt(1).Value);
+
+            claims = sut.ReceivedReceivedClaimsForAuthenticateResult.Where(c => c.Key == "mappedTargetClaim2").ToList();
+            Assert.AreEqual(1, claims.Count);
+
+            Assert.AreEqual("value2", claims.ElementAt(0).Value);
         }
 
         [TestMethod]
@@ -102,9 +113,18 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests
             sut.AuthenticateExternalAsync(context);
 
             Assert.IsNotNull(sut.ReceivedReceivedClaimsForAuthenticatedUser);
-            Assert.AreEqual(2, sut.ReceivedReceivedClaimsForAuthenticatedUser.Count);
-            Assert.AreEqual("value1", sut.ReceivedReceivedClaimsForAuthenticatedUser["mappedTargetClaim1"]);
-            Assert.AreEqual("value2", sut.ReceivedReceivedClaimsForAuthenticatedUser["mappedTargetClaim2"]);
+            Assert.AreEqual(3, sut.ReceivedReceivedClaimsForAuthenticatedUser.Count());
+
+            List<KeyValuePair<string, string>> claims = sut.ReceivedReceivedClaimsForAuthenticatedUser.Where(c => c.Key == "mappedTargetClaim1").ToList();
+            Assert.AreEqual(2, claims.Count);
+
+            Assert.AreEqual("value1", claims.ElementAt(0).Value);
+            Assert.AreEqual("value12", claims.ElementAt(1).Value);
+
+            claims = sut.ReceivedReceivedClaimsForAuthenticateResult.Where(c => c.Key == "mappedTargetClaim2").ToList();
+            Assert.AreEqual(1, claims.Count);
+
+            Assert.AreEqual("value2", claims.ElementAt(0).Value);
         }
     }
 }
