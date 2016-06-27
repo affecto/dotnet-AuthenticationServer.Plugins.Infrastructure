@@ -3,7 +3,6 @@
     public interface IFederatedAuthenticationConfiguration
     {
         string UserAccountNameClaim { get; set; }
-        string UserDisplayNameClaim { get; set; }
-        string GroupsClaim { get; set; }
+        IReceivedClaims ReceivedClaims { get; }
     }
 }

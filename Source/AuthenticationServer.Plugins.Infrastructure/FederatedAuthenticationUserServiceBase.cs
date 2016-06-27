@@ -31,24 +31,17 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
         public override Task AuthenticateExternalAsync(ExternalAuthenticationContext context)
         {
             Claim userAccountName = context.ExternalIdentity.Claims.SingleOrDefault(c => c.Type == federatedAuthenticationConfiguration.Value.UserAccountNameClaim);
-            Claim userDisplayName = context.ExternalIdentity.Claims.SingleOrDefault(c => c.Type == federatedAuthenticationConfiguration.Value.UserDisplayNameClaim);
+            IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims = MapReceivedClaims(context.ExternalIdentity.Claims);
 
-            if (userAccountName != null && userDisplayName != null)
+            if (userAccountName != null)
             {
-                IEnumerable<string> userGroups = Enumerable.Empty<string>();
-                if (!string.IsNullOrWhiteSpace(federatedAuthenticationConfiguration.Value.GroupsClaim))
-                {
-                    userGroups = context.ExternalIdentity.Claims
-                        .Where(c => c.Type == federatedAuthenticationConfiguration.Value.GroupsClaim)
-                        .Select(c => c.Value);
-                }
-
-                CreateOrUpdateExternallyAuthenticatedUser(userAccountName.Value, userDisplayName.Value, userGroups.ToList());
-                context.AuthenticateResult = CreateAuthenticateResult(userAccountName.Value, AuthenticationTypes.Federation, context.SignInMessage.IdP);
+                CreateOrUpdateExternallyAuthenticatedUser(receivedClaims);
+                context.AuthenticateResult = CreateAuthenticateResult(userAccountName.Value, AuthenticationTypes.Federation, receivedClaims,
+                    context.SignInMessage.IdP);
             }
             else
             {
-                context.AuthenticateResult = new AuthenticateResult("One or more required claims were missing from the IDP's message.");
+                context.AuthenticateResult = new AuthenticateResult("Required claims were missing from the IDP's message.");
             }
 
             return Task.FromResult(0);
@@ -57,11 +50,26 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
         /// <summary>
         /// Override this method if you need to update externally authenticated user's information to another identity management system.
         /// </summary>
-        /// <param name="userAccountName">User's account name from external IDP claims.</param>
-        /// <param name="userDisplayName">User's display name from external IDP claims..</param>
-        /// <param name="groups">User's groups from external IDP claims.</param>
-        protected virtual void CreateOrUpdateExternallyAuthenticatedUser(string userAccountName, string userDisplayName, IReadOnlyCollection<string> groups)
+        /// <param name="receivedClaims">Claims received from external identity provider. Claim names are mapped according to configuration.</param>
+        protected virtual void CreateOrUpdateExternallyAuthenticatedUser(IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims)
         {
+        }
+
+        protected virtual IReadOnlyCollection<KeyValuePair<string, string>> MapReceivedClaims(IEnumerable<Claim> receivedClaims)
+        {
+            var mappedClaims = new List<KeyValuePair<string, string>>();
+            IReceivedClaims configuration = federatedAuthenticationConfiguration.Value.ReceivedClaims;
+
+            foreach (Claim claim in receivedClaims)
+            {
+                if (configuration.ContainsReceivedClaimType(claim.Type))
+                {
+                    string targetClaimType = configuration.GetTargetClaimType(claim.Type);
+                    mappedClaims.Add(new KeyValuePair<string, string>(targetClaimType, claim.Value));
+                }
+            }
+
+            return mappedClaims;
         }
     }
 }
