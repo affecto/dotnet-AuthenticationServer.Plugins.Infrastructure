@@ -35,9 +35,10 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
 
             if (userAccountName != null)
             {
+                string identityProvider = context.SignInMessage?.IdP ?? IdentityProviderDefaultValue;
+
                 CreateOrUpdateExternallyAuthenticatedUser(receivedClaims);
-                context.AuthenticateResult = CreateAuthenticateResult(userAccountName.Value, AuthenticationTypes.Federation, receivedClaims,
-                    context.SignInMessage.IdP);
+                context.AuthenticateResult = CreateAuthenticateResult(userAccountName.Value, AuthenticationTypes.Federation, receivedClaims, identityProvider);
             }
             else
             {

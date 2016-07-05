@@ -69,6 +69,15 @@ namespace AuthenticationServer.Plugins.Infrastructure.Tests
         }
 
         [TestMethod]
+        public void AuthenticateResultIsReturnedWithDefaultIdentityProviderName()
+        {
+            context.SignInMessage.IdP = null;
+            sut.AuthenticateExternalAsync(context);
+
+            Assert.AreEqual("idsrv", sut.ReceivedIdentityProvider);
+        }
+
+        [TestMethod]
         public void ExternalUserIsUpdatedWithEmptyClaims()
         {
             sut.AuthenticateExternalAsync(context);

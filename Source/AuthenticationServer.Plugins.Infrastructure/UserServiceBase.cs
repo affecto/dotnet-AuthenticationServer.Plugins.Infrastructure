@@ -8,6 +8,8 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
 {
     public abstract class UserServiceBase : IdentityServer3.Core.Services.Default.UserServiceBase
     {
+        protected const string IdentityProviderDefaultValue = "idsrv";
+
         /// <summary>
         /// This method gets called for local authentication (whenever the user uses the username and password dialog).
         /// </summary>
@@ -54,6 +56,6 @@ namespace Affecto.AuthenticationServer.Plugins.Infrastructure
         /// <param name="identityProvider">Identity provider id, "idsrv" as default. Can be replaced with e.g. external identity provider id.</param>
         /// <returns></returns>
         protected abstract AuthenticateResult CreateAuthenticateResult(string userName, string authenticationType,
-            IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims = null, string identityProvider = "idsrv");
+            IReadOnlyCollection<KeyValuePair<string, string>> receivedClaims = null, string identityProvider = IdentityProviderDefaultValue);
     }
 }
