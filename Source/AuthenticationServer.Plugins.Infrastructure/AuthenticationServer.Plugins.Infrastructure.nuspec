@@ -7,6 +7,6 @@
     <description>$description$</description>
     <projectUrl>https://github.com/affecto/dotnet-AuthenticationServer</projectUrl>
     <tags>affecto authentication server oauth oauth2 plugin plugins federated configuration</tags>
-    <releaseNotes>Claims received from external identity provider are mapped according to configuration and passed forward to plugin implementation.</releaseNotes>
+    <releaseNotes>Use default value if identity provider name is not provided with the authorize request.</releaseNotes>
   </metadata>
 </package>
